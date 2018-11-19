@@ -114,7 +114,7 @@ layui.use('upload', function(){
         var tr = $(['<tr id="upload-'+ index +'">'
           ,'<td>'+ file.name +'</td>'
           ,'<td>'+ (file.size/1014).toFixed(1) +'kb</td>'
-          ,'<td><span class="second"><input type="text" name="makeupCo" id="makeupCo" class="makeinp" onfocus="setfocus(this,'+index+')" value="" oninput="setinput(value,'+index+');"placeholder="请输入关键字" /><select name="makeupCoSe" class="typenum typenum'+index+'" onchange="changeF(this,'+index+')" size="10"></select></span></td>'
+          ,'<td><span class="second"><input type="text" name="makeupCo" id="makeupCo" class="makeinp" onfocus="setfocus(this,\''+index+'\')" value="" oninput="setinput(value,\''+index+'\');"placeholder="请输入关键字" /><select name="makeupCoSe" class="typenum typenum'+index+'" onchange="changeF(this,\''+index+'\')" size="10"></select></span></td>'
           ,'<td>等待上传</td>'
           ,'<td>'
             ,'<button class="layui-btn layui-btn-xs demo-reload layui-hide">重传</button>'
@@ -191,7 +191,7 @@ var TempArr = [];//存储option
 	 * 改变值
 	 */
 	function changeF(this_,index) {
-		index = index+'-0';
+		index = index;
 		$(this_).prev("input").val($(this_).find("option:selected").text());
 		$(".typenum"+index).css({ "display": "none" });
 	}
@@ -199,7 +199,7 @@ var TempArr = [];//存储option
 	 * 失焦
 	 */
 	function setfocus(this_,index) {
-		index = index+'-0';
+		index = index;
 		$(".typenum"+index).css({ "display": "block" });
 		console.log('setFocus------'+index);
 		var select = $(".typenum"+index);
@@ -212,7 +212,7 @@ var TempArr = [];//存储option
 	 * 输入值
 	 */
 	function setinput(this_,index) {
-		index = index+'-0';
+		index = index;
 		console.log('setFocus------'+index);
 		$(".typenum"+index).css({ "display": "block" });
 		$(".typenum"+index).html('');
