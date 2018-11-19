@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>layui</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link rel="stylesheet" href="./css/layui.css"  media="all">
+  <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+  <style>
+ .second select{
+        width: 169px;
+    height: 105px;
+    margin: 0px;
+    outline: none;
+    border: 1px solid #999;
+    margin-top: 31px;
+    margin-left: -7px;
+  
+    }
+    .second select>option{
+      width: 169px;
+      overflow: hidden;
+text-overflow:ellipsis;
+white-space: nowrap;
+    }
+		.second input {
+		    width: 167px;
+		    top: 9px;
+		    outline: none;
+		    position: absolute;
+		    line-height: 30px;
+		    left: 8px;
+		    height: 30px;
+        border:none;
+      background: #fff;
+		}
+		.second ul {
+		    position: absolute;
+		    top: 27px;
+		    border: 1px solid #999;
+		    left: 8px;
+		    width: 125px;
+		    line-height: 16px;
+		}
+		.ul li{
+		    list-style: none;
+		    width: 161px;
+		    /* left: 15px; */
+		    margin-left: -40px;
+		    font-family: 微软雅黑;
+		    padding-left: 4px;
+		}
+    input{
+      border:none;
+      background: #fff;
+    }
+		.blue { 
+			background:#1e91ff; 
+		}
+		.typenum{
+			display:none;
+		}
+		</style>
+</head>
+<body>
+    
+ 
+ 
+<div class="layui-upload">
+  <button type="button" class="layui-btn layui-btn-normal" id="testList">选择多文件</button> 
+  <div class="layui-upload-list">
+    <table class="layui-table">
+      <thead>
+        <tr><th>文件名</th>
+        <th>大小</th>
+        <th>院校</th>
+        <th>状态</th>
+        <th>操作</th>
+      </tr></thead>
+      <tbody id="demoList"></tbody>
+    </table>
+  </div>
+  <button type="button" class="layui-btn" id="testListAction">开始上传</button>
+</div> 
+  
+ 
+          
+<script src="./layui.js" charset="utf-8"></script>
+<script>
+  var list=['语文','数学','英语','123','123456','abc'];
+layui.use('upload', function(){
+  
+  var $ = layui.jquery
+  ,upload = layui.upload;
+  
+  
+  //多文件列表示例
+  var demoListView = $('#demoList')
+  ,uploadListIns = upload.render({
+    elem: '#testList'
+    ,url: '/upload/'
+    ,accept: 'file'
+    ,multiple: true
+    ,auto: false
+    ,bindAction: '#testListAction'
+    ,choose: function(obj){
+      var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列
+      
+      //读取本地文件
+      obj.preview(function(index, file, result){
+	  console.log('index------'+index);
+        var tr = $(['<tr id="upload-'+ index +'">'
+          ,'<td>'+ file.name +'</td>'
+          ,'<td>'+ (file.size/1014).toFixed(1) +'kb</td>'
+          ,'<td><span class="second"><input type="text" name="makeupCo" id="makeupCo" class="makeinp" onfocus="setfocus(this,'+index+')" value="" oninput="setinput(value,'+index+');"placeholder="请输入关键字" /><select name="makeupCoSe" class="typenum typenum'+index+'" onchange="changeF(this,'+index+')" size="10"></select></span></td>'
+          ,'<td>等待上传</td>'
+          ,'<td>'
+            ,'<button class="layui-btn layui-btn-xs demo-reload layui-hide">重传</button>'
+            ,'<button class="layui-btn layui-btn-xs layui-btn-danger demo-delete">删除</button>'
+          ,'</td>'
+        ,'</tr>'].join(''));
+        
+        //单个重传
+        for(var i=0 ;i<list.length;i++){
+          var html= '<option value="">'+list[i]+'</option>'
+          tr.find('.typenum'+index).append(html);
+        }
+        
+        tr.find('.demo-reload').on('click', function(){
+          obj.upload(index, file);
+        });
+        //删除
+        tr.find('.demo-delete').on('click', function(){
+          delete files[index]; //删除对应的文件
+			console.log('---delete---index------'+index);
+          tr.remove();
+          uploadListIns.config.elem.next()[0].value = ''; //清空 input file 值，以免删除后出现同名文件不可选
+        });
+        
+        demoListView.append(tr);
+      });
+    }
+    ,done: function(res, index, upload){
+      if(res.code == 0){ //上传成功
+        var tr = demoListView.find('tr#upload-'+ index)
+        ,tds = tr.children();
+        tds.eq(2).html('<span style="color: #5FB878;">上传成功</span>');
+        tds.eq(3).html(''); //清空操作
+        return delete this.files[index]; //删除文件队列已经上传成功的文件
+      }
+      this.error(index, upload);
+    }
+    ,error: function(index, upload){
+      var tr = demoListView.find('tr#upload-'+ index)
+      ,tds = tr.children();
+      tds.eq(2).html('<span style="color: #FF5722;">上传失败</span>');
+      tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
+    }
+  });
+  
+  
+  
+});
+
+
+
+// 模糊搜索
+var TempArr = [];//存储option
+
+		$(function () {
+			/*先将数据存入数组*/
+			$(".typenum option").each(function (index, el) {
+				TempArr[index] = $(this).text();
+			});
+			$(document).bind('click', function (e) {
+				var e = e || window.event; //浏览器兼容性   
+				var elem = e.target || e.srcElement;
+				while (elem) { //循环判断至跟节点，防止点击的是div子元素   
+					if (elem.id && (elem.id == 'typenum' || elem.id == "makeupCo")) {
+						return;
+					}
+					elem = elem.parentNode;
+				}
+				$('.typenum').css('display', 'none'); //点击的不是div或其子元素   
+			});
+		})
+	
+	/**
+	 * 改变值
+	 */
+	function changeF(this_,index) {
+		index = index+'-0';
+		$(this_).prev("input").val($(this_).find("option:selected").text());
+		$(".typenum"+index).css({ "display": "none" });
+	}
+	/**
+	 * 失焦
+	 */
+	function setfocus(this_,index) {
+		index = index+'-0';
+		$(".typenum"+index).css({ "display": "block" });
+		console.log('setFocus------'+index);
+		var select = $(".typenum"+index);
+		for (i = 0; i < TempArr.length; i++) {
+			var option = $("<option></option>").text(TempArr[i]);
+			select.append(option);
+		}
+	}
+	/**
+	 * 输入值
+	 */
+	function setinput(this_,index) {
+		index = index+'-0';
+		console.log('setFocus------'+index);
+		$(".typenum"+index).css({ "display": "block" });
+		$(".typenum"+index).html('');
+		var newArr=this.mohu(this_);
+		for(var i=0 ;i<newArr.length;i++){
+			var html= '<option value="">'+newArr[i]+'</option>'
+			$(".typenum"+index).append(html);
+		}	
+    }
+    function mohu(value){
+      var len = list.length;
+      var arr = [];
+      for(var i=0;i<len;i++){
+          //如果字符串中不包含目标字符会返回-1
+          if(list[i].indexOf(value)>=0){
+              arr.push(list[i]);
+          }
+      }
+      return arr;
+
+    }
+</script>
+
+</body>
+</html>
